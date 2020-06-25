@@ -1,0 +1,48 @@
+{
+  game: { id: '1b0adcbf-7977-40d8-b5e4-cb5d278db565', timeout: 500 },
+  turn: 99,
+  board: {
+    height: 11,
+    width: 11,
+    food: [
+      { x: 7, y: 0 },  { x: 6, y: 10 },
+      { x: 0, y: 4 },  { x: 0, y: 3 },
+      { x: 6, y: 3 },  { x: 10, y: 2 },
+      { x: 7, y: 9 },  { x: 9, y: 3 },
+      { x: 9, y: 2 },  { x: 9, y: 0 },
+      { x: 10, y: 8 }, { x: 1, y: 4 },
+      { x: 1, y: 2 },  { x: 5, y: 10 },
+      { x: 6, y: 2 },  { x: 10, y: 9 },
+      { x: 4, y: 5 },  { x: 1, y: 7 }
+    ],
+    snakes: [
+      {
+        id: 'gs_jJJc7qrCfbfWcMKJPPvHmRxM',
+        name: 'stumbler-jg',
+        health: 1,
+        body: [ { x: 9, y: 6 }, { x: 8, y: 6 }, { x: 8, y: 5 } ],
+        head: { x: 9, y: 6 },
+        length: 3,
+        shout: ''
+      },
+      {
+        id: 'gs_SCCBPyJ6YvXCDR6vw4tb4QTK',
+        name: 'stumbler-jg',
+        health: 1,
+        body: [ { x: 5, y: 2 }, { x: 4, y: 2 }, { x: 4, y: 1 } ],
+        head: { x: 5, y: 2 },
+        length: 3,
+        shout: ''
+      }
+    ]
+  },
+  you: {
+    id: 'gs_SCCBPyJ6YvXCDR6vw4tb4QTK',
+    name: 'stumbler-jg',
+    health: 1,
+    body: [ { x: 5, y: 2 }, { x: 4, y: 2 }, { x: 4, y: 1 } ],
+    head: { x: 5, y: 2 },
+    length: 3,
+    shout: ''
+  }
+}
