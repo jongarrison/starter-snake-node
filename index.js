@@ -13,6 +13,48 @@ app.post('/end', handleEnd)
 console.log("JG Version 3");
 app.listen(PORT, () => console.log(`Battlesnake Server listening at http://127.0.0.1:${PORT}`))
 
+const directionHelper = (() => {
+  const allDirections = ['up', 'right', 'down', 'left']
+  const directionTransformations = [
+    {x: 0, y: 1},
+    {x: 1, y: 0},
+    {x: 0, y: -1},
+    {x: -1, y: 0}
+  ]
+
+  const result = {
+    allDirections: allDirections,
+    getRandomDirection: () => {
+      return allDirections[Math.floor(Math.random() * 3)]
+    },
+    isLeftish: (refCoords, targetCoords) => {
+      return refCoords.x > targetCoords.x
+    },
+    isRightish: (refCoords, targetCoords) => {
+      return refCoords.x < targetCoords.x
+    },
+    isUppish: (refCoords, targetCoords) => {
+      return refCoords.y < targetCoords.y
+    },
+    isDownish: (refCoords, targetCoords) => {
+      return refCoords.y > targetCoords.y
+    },
+    getLeftCoords: (refCoords) => {
+      return {x: refCoords.x - 1, y: refCoords.y}
+    },
+    getRightCoords: (refCoords) => {
+      return {x: refCoords.x + 1, y: refCoords.y}
+    },
+    getUpCoords: (refCoords) => {
+      return {x: refCoords.x, y: refCoords.y + 1}
+    },
+    getDownCoords: (refCoords) => {
+      return {x: refCoords.x, y: refCoords.y - 1}
+    },
+  }
+  return result;
+})()
+
 
 function handleIndex(request, response) {
   console.log("event=requestIndex");
@@ -141,17 +183,46 @@ function getCoordsFromDirection(directionName, headCoords) {
 function isSafeDestination(targetCoords, gameData) {
   console.log("event=isSafeDestination targetCoords=" + coordsToString(targetCoords))
 
-  for (let i = 0; i < gameData.you.body.length; i++) {
-    const considerCoords = gameData.you.body[i]
-    if (isSameCoords(targetCoords, considerCoords)) {
-      return false
+  //1 look for walls
+  if (targetCoords.x < 0
+      || targetCoords.y < 0
+      || targetCoords.x > gameData.board.width - 1
+      || targetCoords.y > gameData.board.height - 1) {
+    console.log("event=isSafeDestination targetCoords=" + coordsToString(targetCoords) + " result=Wall")
+    return false
+  }
+
+  //2 look for snake head on collisions and then bodies
+  for (let i = 0; i < gameData.board.snakes.length; i++) {
+    const snake = gameData.board.snakes[i]
+
+    if (snake.id !== gameData.you.id) {
+      //check for head on potential
+      if (distanceBetweenCoords(snake.head, targetCoords) === 1) {
+        console.log("event=isSafeDestination targetCoords=" + coordsToString(targetCoords) + " result=HeadOn")
+        return false
+      }
+    }    
+    
+    //check body collision    
+    for (let j = 0; j < snake.body.length; j++) {
+      const considerCoords = snake.body[j]
+      if (isSameCoords(targetCoords, considerCoords)) {
+        console.log("event=isSafeDestination targetCoords=" + coordsToString(targetCoords) + " result=BodyCollision")
+        return false
+      }
     }
   }
+
+  console.log("event=isSafeDestination targetCoords=" + coordsToString(targetCoords) + " result=Good")
   return true
 }
 
+/**
+ * So what I was thinking about here is... 
+ */
 function isSameCoords(coords0, coords1) {
-  console.log("event=isSameCoords coords0=" + coordsToString(coords0) + " coords1=" +  coordsToString(coords1))
+  //console.log("event=isSameCoords coords0=" + coordsToString(coords0) + " coords1=" +  coordsToString(coords1))
   return coords0.x === coords1.x && coords0.y === coords1.y
 }
 
@@ -172,7 +243,7 @@ function searchClosestFood(gameData) {
   let bestPellet = null
 
   food.forEach((pellet) => {
-    const pelletDistance = Math.abs(gameData.you.head.x - pellet.x) + Math.abs(gameData.you.head.y - pellet.y)
+    const pelletDistance = distanceBetweenCoords(gameData.you.head, pellet)
 
     if (pelletDistance < bestDistance) {
       bestDistance = pelletDistance
@@ -184,6 +255,10 @@ function searchClosestFood(gameData) {
   })
   console.log("event=searchClosestFood bestPellet=" + coordsToString(bestPellet))
   return bestPellet
+}
+
+function distanceBetweenCoords(coords0, coords1) {
+  return Math.abs(coords0.x - coords1.x) + Math.abs(coords0.y - coords1.y)
 }
 
 function handleEnd(request, response) {
